@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Right now · Last-Minute Life Saver{% endblock %}
+{% block content %}
+
+<div class="dash-head">
+  <div>
+    <p class="eyebrow">Right now</p>
+    <h1>What should you actually do?</h1>
+  </div>
+  <a href="{{ url_for('tasks.new_task') }}" class="btn btn-primary">+ New task</a>
+</div>
+
+<div class="dash-grid">
+
+  <section class="hero-now {% if top %}risk-{{ top.risk }}{% endif %}">
+    {% if top %}
+      <p class="hero-label">Top priority &middot; score {{ top.score }}</p>
+      <h2 class="hero-title">{{ top.task.title }}</h2>
+      <div class="hero-meta">
+        <span class="pill pill--category">{{ top.task.category }}</span>
+        <span class="pill pill--risk risk-{{ top.risk }}">{{ top.risk.replace('_', ' ') }}</span>
+      </div>
+      <p class="hero-reason">{{ top.reason }}</p>
+      <div class="countdown" data-deadline="{{ top.task.deadline.isoformat() }}">
+        <span class="countdown-value">--</span>
+        <span class="countdown-label">left on the clock</span>
+      </div>
+      <div class="hero-actions">
+        <a href="{{ url_for('tasks.task_detail', task_id=top.task.id) }}" class="btn btn-primary">Start this &rarr;</a>
+        <form method="post" action="{{ url_for('tasks.complete_task', task_id=top.task.id) }}">
+          <button type="submit" class="btn btn-ghost">Mark done</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="hero-label">Right now</p>
+      <h2 class="hero-title">Nothing urgent &mdash; your queue is clear.</h2>
+      <p class="hero-reason">Add a task, or just talk to the mic button in the corner.</p>
+      <a href="{{ url_for('tasks.new_task') }}" class="btn btn-primary">Add your next task</a>
+    {% endif %}
+  </section>
+
+  <aside class="side-col">
+    <div class="stat-row">
+      <div class="stat-tile">
+        <span class="stat-num">{{ stats.pending }}</span>
+        <span class="stat-tag">active</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-num">{{ stats.done }}</span>
+        <span class="stat-tag">done</span>
+      </div>
+      <div class="stat-tile stat-tile--warn">
+        <span class="stat-num">{{ stats.missed }}</span>
+        <span class="stat-tag">missed</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">For you</p>
+      <ul class="tip-list">
+        {% for tip in tips %}
+          <li>{{ tip }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+
+  <section class="queue panel">
+    <div class="panel-head">
+      <p class="panel-title">Up next</p>
+      <a href="{{ url_for('tasks.task_list') }}">See all tasks &rarr;</a>
+    </div>
+    {% if upcoming %}
+      <ol class="queue-list">
+        {% for item in upcoming %}
+          <li>
+            <span class="queue-rank">{{ "%02d"|format(loop.index) }}</span>
+            <a href="{{ url_for('tasks.task_detail', task_id=item.task.id) }}" class="queue-title">{{ item.task.title }}</a>
+            <span class="pill pill--category">{{ item.task.category }}</span>
+            <span class="pill pill--risk risk-{{ item.risk }}">{{ item.risk.replace('_', ' ') }}</span>
+            <span class="queue-deadline">{{ item.task.deadline.strftime('%a %d %b, %I:%M %p') }}</span>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="empty-note">Nothing else queued up.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

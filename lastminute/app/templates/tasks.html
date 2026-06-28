@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Tasks · Last-Minute Life Saver{% endblock %}
+{% block content %}
+
+<div class="dash-head">
+  <div>
+    <p class="eyebrow">Tasks</p>
+    <h1>Everything on your plate</h1>
+  </div>
+  <a href="{{ url_for('tasks.new_task') }}" class="btn btn-primary">+ New task</a>
+</div>
+
+<div class="filter-row">
+  {% for key, label in [('active','Active'), ('done','Done'), ('missed','Missed'), ('all','All')] %}
+    <a href="{{ url_for('tasks.task_list', status=key) }}" class="filter-chip {{ 'active' if status_filter == key }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<section class="panel">
+  {% if ranked %}
+    <ol class="queue-list queue-list--wide">
+      {% for item in ranked %}
+        <li>
+          {% if item.risk %}
+            <span class="queue-rank">{{ "%02d"|format(loop.index) }}</span>
+          {% else %}
+            <span class="queue-rank queue-rank--muted">&middot;</span>
+          {% endif %}
+          <a href="{{ url_for('tasks.task_detail', task_id=item.task.id) }}" class="queue-title">{{ item.task.title }}</a>
+          <span class="pill pill--category">{{ item.task.category }}</span>
+          {% if item.risk %}
+            <span class="pill pill--risk risk-{{ item.risk }}">{{ item.risk.replace('_', ' ') }}</span>
+          {% else %}
+            <span class="pill pill--status status-{{ item.task.status }}">{{ item.task.status.replace('_',' ') }}</span>
+          {% endif %}
+          <span class="queue-deadline">{{ item.task.deadline.strftime('%a %d %b, %I:%M %p') }}</span>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="empty-note">No tasks here yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

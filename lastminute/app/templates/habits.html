@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Habits · Last-Minute Life Saver{% endblock %}
+{% block content %}
+
+<div class="dash-head">
+  <div>
+    <p class="eyebrow">Habits &amp; goals</p>
+    <h1>What you're building, daily</h1>
+  </div>
+</div>
+
+<form method="post" action="{{ url_for('habits.new_habit') }}" class="panel form-stack form-stack--inline">
+  <label>New habit
+    <input type="text" name="name" placeholder="e.g. Revise DBMS for 20 minutes" required>
+  </label>
+  <label>Frequency
+    <select name="frequency">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+    </select>
+  </label>
+  <button type="submit" class="btn btn-primary">Track it</button>
+</form>
+
+<section class="habit-grid">
+  {% for habit in habits %}
+    <div class="habit-card {{ 'habit-card--checked' if habit.last_checkin == today }}">
+      <p class="habit-name">{{ habit.name }}</p>
+      <div class="habit-stats">
+        <span class="streak-num">{{ habit.streak }}</span>
+        <span class="streak-label">day streak</span>
+      </div>
+      <p class="muted-text small-text">Best: {{ habit.longest_streak }} &middot; {{ habit.frequency }}</p>
+      <div class="hero-actions">
+        {% if habit.last_checkin == today %}
+          <button class="btn btn-ghost btn-sm" disabled>Checked in today</button>
+        {% else %}
+          <form method="post" action="{{ url_for('habits.checkin', habit_id=habit.id) }}">
+            <button type="submit" class="btn btn-primary btn-sm">Check in</button>
+          </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('habits.delete_habit', habit_id=habit.id) }}" onsubmit="return confirm('Stop tracking this habit?');">
+          <button type="submit" class="btn btn-ghost btn-sm btn-danger">Remove</button>
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <p class="empty-note">No habits tracked yet &mdash; add one above.</p>
+  {% endfor %}
+</section>
+{% endblock %}

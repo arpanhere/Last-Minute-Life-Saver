@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Calendar · Last-Minute Life Saver{% endblock %}
+{% block content %}
+
+<div class="dash-head">
+  <div>
+    <p class="eyebrow">Calendar</p>
+    <h1>Your scheduled day</h1>
+  </div>
+  <form method="post" action="{{ url_for('tasks.auto_schedule') }}">
+    <button type="submit" class="btn btn-primary">Auto-schedule my day</button>
+  </form>
+</div>
+
+{% if by_day %}
+  {% for day, day_tasks in by_day.items() %}
+    <section class="panel">
+      <p class="panel-title">{{ day }}</p>
+      <ol class="agenda-list">
+        {% for t in day_tasks %}
+          <li>
+            <span class="agenda-time">{{ t.scheduled_start.strftime('%I:%M %p') }}&ndash;{{ t.scheduled_end.strftime('%I:%M %p') }}</span>
+            <a href="{{ url_for('tasks.task_detail', task_id=t.id) }}" class="queue-title">{{ t.title }}</a>
+            <span class="pill pill--category">{{ t.category }}</span>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endfor %}
+{% else %}
+  <section class="panel">
+    <p class="empty-note">Nothing scheduled yet. Hit "Auto-schedule my day" and the planner will slot your pending tasks into working hours, highest priority first.</p>
+  </section>
+{% endif %}
+
+{% if unscheduled %}
+  <section class="panel">
+    <p class="panel-title">Not yet scheduled</p>
+    <ol class="queue-list">
+      {% for t in unscheduled %}
+        <li>
+          <span class="queue-rank queue-rank--muted">&middot;</span>
+          <a href="{{ url_for('tasks.task_detail', task_id=t.id) }}" class="queue-title">{{ t.title }}</a>
+          <span class="pill pill--category">{{ t.category }}</span>
+          <span class="queue-deadline">{{ t.deadline.strftime('%a %d %b, %I:%M %p') }}</span>
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+{% endif %}
+{% endblock %}

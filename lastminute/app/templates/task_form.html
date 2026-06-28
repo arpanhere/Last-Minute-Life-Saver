@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit task' if task else 'New task' }} · Last-Minute Life Saver{% endblock %}
+{% block content %}
+
+<div class="dash-head">
+  <div>
+    <p class="eyebrow">{{ 'Edit task' if task else 'New task' }}</p>
+    <h1>{{ task.title if task else 'What do you need to get done?' }}</h1>
+  </div>
+</div>
+
+<form method="post" class="panel form-stack form-stack--wide">
+  <label>Title
+    <input type="text" name="title" required value="{{ task.title if task else '' }}" placeholder="e.g. Submit DBMS assignment">
+  </label>
+
+  <label>Description <span class="optional">optional</span>
+    <textarea name="description" rows="3" placeholder="Any extra context for yourself or the AI breakdown">{{ task.description if task else '' }}</textarea>
+  </label>
+
+  <div class="form-row">
+    <label>Category
+      <select name="category">
+        {% for c in categories %}
+          <option value="{{ c }}" {{ 'selected' if task and task.category == c }}>{{ c|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Deadline
+      <input type="datetime-local" name="deadline" required
+        value="{{ task.deadline.strftime('%Y-%m-%dT%H:%M') if task else '' }}">
+    </label>
+  </div>
+
+  <div class="form-row">
+    <label>Estimated time needed (minutes)
+      <input type="number" name="estimated_minutes" min="5" step="5" value="{{ task.estimated_minutes if task else 30 }}">
+    </label>
+
+    <label>Importance (1&ndash;5)
+      <input type="range" name="importance" min="1" max="5" value="{{ task.importance if task else 3 }}">
+    </label>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-block">{{ 'Save changes' if task else 'Add task' }}</button>
+</form>
+{% endblock %}

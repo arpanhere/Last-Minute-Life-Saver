@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Last-Minute Life Saver{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('tasks.dashboard') }}">
+    <span class="brand-mark">LM</span>
+    <span class="brand-text">Last-Minute<br>Life Saver</span>
+  </a>
+  <nav class="topnav">
+    <a href="{{ url_for('tasks.dashboard') }}" class="{{ 'active' if request.endpoint == 'tasks.dashboard' }}">Right now</a>
+    <a href="{{ url_for('tasks.task_list') }}" class="{{ 'active' if request.endpoint == 'tasks.task_list' }}">Tasks</a>
+    <a href="{{ url_for('tasks.calendar') }}" class="{{ 'active' if request.endpoint == 'tasks.calendar' }}">Calendar</a>
+    <a href="{{ url_for('habits.habit_list') }}" class="{{ 'active' if request.endpoint == 'habits.habit_list' }}">Habits</a>
+  </nav>
+  <div class="topbar-right">
+    {% if ai_configured %}
+      <span class="ai-pill ai-pill--on" title="Real Claude API calls are powering breakdown &amp; voice parsing">● AI live</span>
+    {% else %}
+      <span class="ai-pill ai-pill--off" title="No ANTHROPIC_API_KEY set — running the built-in rule-based engine">○ Heuristic mode</span>
+    {% endif %}
+    <span class="username">{{ current_user.username }}</span>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.logout') }}">Log out</a>
+  </div>
+</header>
+{% endif %}
+
+<main class="page">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-stack">
+        {% for category, message in messages %}
+          <div class="flash flash--{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+{% if current_user.is_authenticated %}
+<div id="voice-widget" class="voice-widget">
+  <button id="voice-fab" class="voice-fab" type="button" aria-label="Add a task by voice">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z"/>
+      <path d="M19 11a7 7 0 0 1-14 0M12 18v3"/>
+    </svg>
+  </button>
+  <div id="voice-panel" class="voice-panel hidden">
+    <p class="voice-hint">Say something like <em>"Remind me to pay the hostel bill by Friday 6pm"</em></p>
+    <p id="voice-transcript" class="voice-transcript">Listening…</p>
+    <p id="voice-result" class="voice-result"></p>
+  </div>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
